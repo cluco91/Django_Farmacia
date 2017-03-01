@@ -1,0 +1,13 @@
+Django==1.7
+Pillow==3.1.0
+PyPDF2==1.25.1
+Unipath==1.1
+argparse==1.2.1
+ctx==0.1.2
+django-braces==1.8.1
+django-suit==0.2.12
+html5lib==0.9999999
+reportlab==3.2.0
+six==1.10.0
+wsgiref==0.1.2
+xhtml2pdf==0.0.6

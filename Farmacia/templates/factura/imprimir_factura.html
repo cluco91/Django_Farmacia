@@ -1,0 +1,166 @@
+{% extends 'factura/base_factura.html' %}
+{% block titulo %}Factura de Venta {% endblock %}
+{% block content %}
+{% include "nav.html" %}
+{% load humanize %}
+<div class="wrapper">
+  <div class="content-wrapper">
+        <section class="content-header">
+          <h1>            
+            Clientes
+          </h1>
+          <ol class="breadcrumb">
+            <li><a href="#"><i class="fa fa-dashboard"></i> Home</a></li>
+            <li><a href="#">Tables</a></li>
+            <li class="active">Data tables</li>
+          </ol>
+        </section>
+
+    <section class="content"> 
+      <div class="row">
+        <div class="col-md-12">
+          <div class="box box-info">
+          
+            <div class="box-header with-border">
+           
+                    <div class="box-tools pull-right">
+                      <button class="btn btn-box-tool" data-widget="collapse"><i class="fa fa-minus"></i></button>
+                    </div>           
+            </div>
+              <div class="box-body">
+
+
+				<form action="/factura/consultar" method="post">
+					                                        {% csrf_token %}
+					Serie:<input name="serie" id="p-serie" placeholder="Serie" type="text" required="true">
+					Num:<input name="num" id="p-num" placeholder="Numero" type="text" required="true">
+					        
+					    <button type="submit">
+					    <i class="fa fa-search"></i></button>
+					    <a href="{% url 'factura_app:lista_ventas' %}"><i class="fa fa-circle text-success"></i> Ver Todos</a>
+
+					{% load humanize %}
+					    {% if user.is_authenticated %}
+					        {% if messages %}{% for message in messages %}
+					          <div class="alert alert-danger alert-dismissable">
+					          <i class="fa fa-info"></i>
+					            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+					                    <b>Alert!</b> {{ message }}
+					          </div>
+					      {% endfor %}{% endif %}
+
+					        <section class="content invoice">                    
+					            <div class="row">
+					                <div class="col-xs-12">
+					                    <h2 class="page-header">
+					                        <i class="fa fa-globe"></i> Sisfam. 
+					                        <small class="pull-right">Fecha impresión: {% now "d/m/Y" %}</small>
+					                    </h2>                            
+					                </div>
+					            </div>
+					            <div class="row invoice-info">
+					                <div class="col-sm-4 invoice-col">
+					                    <b>Factura</b> <br/>
+					                    Serie: {{factura.serie}}<br/>
+					                    Num: {{factura.numero}}<br/>
+					                    <b>Fecha de compra:</b> {{factura.fecha|date:"d/m/Y"}}<br/><br/>
+					                </div>
+
+					                <div class="col-sm-4 invoice-col">
+					                    <strong>Cliente</strong>
+					                    <br>
+					                    Identificación: <span id="c-id">{{factura.cliente.dni}}</span><br/>                    
+					                    Razón Social: <span id="c-razon_social">{{factura.cliente.nombre}}</span><br/>
+					                    Dirección: <span id="c-direccion">{{factura.cliente.direccion}}</span><br/>
+					                    Teléfono: <span id="c-telefono">{{factura.cliente.telefono}}</span><br/>
+					                </div>
+
+					                <div class="col-sm-4 invoice-col">
+					                    <strong>Despachador</strong><br>
+					                    Apellido: {{factura.vendedor.last_name}}<br>
+					                    Nombre: {{factura.vendedor.first_name}}<br>
+					                </div>					                
+					            </div>
+
+					            <div class="row">
+					                <div class="col-xs-12 table-responsive">
+					                    <table class="table table-striped" id="tb-detalle">
+					                        <thead>
+					                            <tr>
+					                                <th>#</th>
+					                                <th>Producto</th>
+					                                <th>Serial #</th>
+					                                <th>Precio</th>
+					                                <th>Cantidad</th>
+					                                <th>IGV</th>
+					                                <th>Subtotal</th>
+					                            </tr>                                    
+					                        </thead>
+					                        <tbody>
+										        {% for d in detalles %}       
+										            <tr>
+										                <td>
+										                    {{ forloop.counter }}
+										                    
+										                </td>
+										                <td>{{ d.producto.nombre  }} </td>
+										                <td>{{ d.producto.pk  }} </td>
+										                <td>{{ d.producto.precio_venta|floatformat:2|intcomma  }} </td>
+										                <td>{{ d.cantidad  }} </td>
+										                <td>{{ d.impuesto|floatformat:2|intcomma  }} </td>
+										                <td>{{ d.subtotal|floatformat:2|intcomma  }} </td>
+
+										            </tr>
+					            				{% endfor %}
+					                        </tbody>
+					                    </table>                            
+					                </div>
+					            </div>
+
+					            <div class="row">
+					                <div class="col-xs-8">
+					                    <p class="text-muted well well-sm no-shadow" style="margin-top: 10px;">
+					                        No se realiza cambio ni devolución de dinero por los productos adquiridos, 
+					                        favor de verificar el estado de cada uno de los items de su compra.
+					                    </p>
+					                </div>
+					                <div class="col-xs-4">
+					                    <p class="lead">Totales de la compra</p>
+					                    <div class="table-responsive">
+					                        <table class="table">
+					                            <tr>
+					                                <th >Subtotal:</th>
+					                                <td><b>{{sum_subtotal|floatformat:2|intcomma}}</b></td>
+					                            </tr>
+					                            <tr>
+					                                <th>IGV</th>
+					                                <td><b>{{sum_tax|floatformat:2|intcomma}}</b></td>
+					                            </tr>
+					                            <tr>
+					                                <th>Total: $</th>
+					                                <td ><b>{{factura.total|floatformat:2|intcomma}}</b></td>
+					                            </tr>
+					                        </table>
+					                    </div>
+					                </div>
+					            </div>
+
+					            <div class="row no-print">
+					                <div class="col-xs-12">
+
+					                    <button class="btn btn-primary pull-right" style="margin-right: 5px;" onclick="window.print();"><i class="fa fa-download"></i> Generar PDF</button>
+					                </div>
+					            </div>
+				</form> 
+				      
+    {% else %}
+
+
+    {% endif %}
+ 
+              </div>
+          </div>
+        </div>
+    </section>
+  </div>
+{% endblock content%}
