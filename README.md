@@ -2,7 +2,7 @@
 
 # Django_Farmacia
 
-- Un mantenedor de una farmacia donde tenemos las siguientes funcionalidades de CRUD:
+- Consiste en una aplicacion donde basándose en operaciones CRUD permiten manejar un sistema de mantenedor de Farmacia.
 
 - Desde Agregar, Editar, Eliminar y Listar:
 
